@@ -32,7 +32,7 @@ export default function () {
 
   return (
     <div>
-      <h1>My Courses</h1>
+    <h1 className="text-3xl font-bold text-center my-8">My Courses</h1>
       {userCourses && userCourses.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {userCourses.map((course: any) => (

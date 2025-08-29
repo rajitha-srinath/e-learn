@@ -14,13 +14,14 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Clock, Users } from "lucide-react";
 import { useAppSelector } from "@/lib/store/hooks";
+import { toast } from "sonner";
 
 import { Course } from "@/lib/store/slices/coursesSlice";
 
 export default function CourseDetailPage() {
   const { id } = useParams();
   const [course, setCourses] = useState<Course | null>();
-  const { user } = useAppSelector((state) => state.auth)
+  const { user } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -57,6 +58,17 @@ export default function CourseDetailPage() {
           body: JSON.stringify(reqObj),
         }
       );
+
+      if (!response.ok) {
+        toast.error("Error occurred", {
+          richColors: true,
+        });
+        throw new Error("Error occurred");
+      }
+
+      toast.success("Course enroll success", {
+        richColors: true,
+      });
     } catch (error) {
       throw new Error("Error occurred when enrolling");
     }
@@ -98,7 +110,11 @@ export default function CourseDetailPage() {
               <span className="font-semibold">Price:</span> ₹{course?.price}
             </div>
           </div>
-          <Button disabled={!user} onClick={handleClickEnroll} className="mt-6 w-full">
+          <Button
+            disabled={!user}
+            onClick={handleClickEnroll}
+            className="mt-6 w-full"
+          >
             Enroll Now
           </Button>
         </CardContent>

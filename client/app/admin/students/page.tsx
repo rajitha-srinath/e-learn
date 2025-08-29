@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { setStudents, addStudent } from "@/lib/store/slices/studentSlice";
+import { toast } from "sonner";
 
 type Student = {
   _id: string;
@@ -59,8 +60,19 @@ export default function Students() {
         }
       );
 
+      if (!resposne.ok) {
+        toast.error("Error occurred when editing student", {
+          richColors: true,
+        });
+        throw new Error("Error occurred when editing student");
+      }
+
       const data = await resposne.json();
       console.log(data);
+
+      toast.success("Student updated successfully", {
+        richColors: true,
+      });
     } else {
       const response = await fetch("http://localhost:8000/api/user", {
         method: "POST",
@@ -74,6 +86,10 @@ export default function Students() {
 
       const data = await response.json();
       dispatch(addStudent(data));
+
+      toast.success("Student added successfully", {
+        richColors: true,
+      });
     }
 
     setForm({});
@@ -81,10 +97,26 @@ export default function Students() {
   };
 
   const handleDelete = async (id: string) => {
-    await fetch(`http://localhost:8000/api/user/${id}`, { method: "DELETE" });
+    try {
+      const response = await fetch(`http://localhost:8000/api/user/${id}`, {
+        method: "DELETE",
+      });
 
-    const data = students.filter((c) => c._id !== id);
-    dispatch(setStudents(data));
+      if (!response.ok) {
+        toast.error("Error occurred when deleting student", {
+          richColors: true,
+        });
+
+        throw new Error('Error occurred when deleting student')
+      }
+      
+      const data = students.filter((c) => c._id !== id);
+      dispatch(setStudents(data));
+
+      toast.success("Student deleted successfully", {
+        richColors: true,
+      });
+    } catch (error) {}
   };
 
   const handleEdit = (student: Student) => {
@@ -231,7 +263,7 @@ export default function Students() {
                   colSpan={5}
                   className="text-center py-8 text-muted-foreground"
                 >
-                  No courses found.
+                  No student found.
                 </td>
               </tr>
             )}

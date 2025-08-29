@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
-import { setCourses, addCourse } from "@/lib/store/slices/coursesSlice";
 import Image from "next/image";
+import { toast } from "sonner";
+
+import { setCourses, addCourse } from "@/lib/store/slices/coursesSlice";
 
 type Course = {
   _id: string;
@@ -80,6 +82,10 @@ export default function Courses() {
       const data = await response.json();
 
       dispatch(addCourse(data));
+
+       toast.success("Course added successfully", {
+        richColors: true,
+      });
     }
 
     setForm({});
@@ -87,10 +93,25 @@ export default function Courses() {
   };
 
   const handleDelete = async (id: string) => {
-    await fetch(`http://localhost:8000/api/course/${id}`, { method: "DELETE" });
+    try {
+      const response = await fetch(`http://localhost:8000/api/course/${id}`, {
+        method: "DELETE",
+      });
 
-    const data = courses.filter((c) => c._id !== id);
-    dispatch(setCourses(data));
+      if (!response.ok) {
+        throw new Error("Error occurred when deleting course");
+      }
+
+      const data = courses.filter((c) => c._id !== id);
+
+      dispatch(setCourses(data));
+
+      toast.success("Course deleted successfully", {
+        richColors: true,
+      });
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
   };
 
   const handleEdit = (course: Course) => {
